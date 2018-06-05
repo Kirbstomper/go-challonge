@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -369,9 +370,37 @@ func (p *Participant) Win() {
 	p.Wins += 1
 }
 
+func separateScores(score string) (int, int, error) {
+	sep := strings.Split(score, "-")
+	if len(sep) != 2 {
+		return 0, 0, fmt.Errorf("score is in wrong format")
+	}
+	a, err := strconv.Atoi(sep[0])
+	if err != nil {
+		return 0, 0, fmt.Errorf("could not format scores: %v", err)
+	}
+
+	b, err := strconv.Atoi(sep[1])
+	if err != nil {
+		return 0, 0, fmt.Errorf("could not format scores: %v", err)
+	}
+	return a, b, nil
+}
+
 func (m *Match) ResolveParticipants(t *Tournament) {
 	m.PlayerOne = t.GetParticipant(m.PlayerOneID)
 	m.PlayerTwo = t.GetParticipant(m.PlayerTwoID)
+
+	scoreOne, scoreTwo, err := separateScores(m.Scores)
+	fmt.Println(scoreOne, scoreTwo)
+
+	if err != nil {
+		m.PlayerOneScore = 0
+		m.PlayerTwoScore = 0
+	}
+
+	m.PlayerOneScore = scoreOne
+	m.PlayerTwoScore = scoreTwo
 
 	m.PlayerOne.TotalScore += m.PlayerOneScore
 	m.PlayerTwo.TotalScore += m.PlayerTwoScore
@@ -380,13 +409,11 @@ func (m *Match) ResolveParticipants(t *Tournament) {
 		//Possible to match winner here
 		m.PlayerOne.Win()
 		m.PlayerTwo.Lose()
-
 		m.Winner = m.PlayerOne
 		m.Loser = m.PlayerTwo
 	} else if m.WinnerID == m.PlayerTwoID {
 		m.PlayerTwo.Win()
 		m.PlayerOne.Lose()
-
 		m.Winner = m.PlayerTwo
 		m.Loser = m.PlayerOne
 	}
