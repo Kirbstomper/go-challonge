@@ -40,20 +40,20 @@ type APIResponse struct {
 }
 
 type Tournament struct {
-	Name              string     `json:"name"`
-	ID                int        `json:"id"`
-	URL               string     `json:"url"`
-	FullURL           string     `json:"full_challonge_url"`
-	State             string     `json:"state"`
-	SubDomain         string     `json:"subdomain"`
-	ParticipantsCount int        `json:"participants_count"`
-	StartedAt         *time.Time `json:"started_at,mitempty"`
-	UpdatedAt         *time.Time `json:"updated_at,omitempty"`
-	Type              string     `json:"tournament_type"`
-	Description       string     `json:"description"`
-	GameName          string     `json:"game_name"`
-	Progress          int        `json:"progress_meter"`
-	CompletedAt       *time.Time `json:"completed_at"`
+	Name              string    `json:"name"`
+	ID                int       `json:"id"`
+	URL               string    `json:"url"`
+	FullURL           string    `json:"full_challonge_url"`
+	State             string    `json:"state"`
+	SubDomain         string    `json:"subdomain"`
+	ParticipantsCount int       `json:"participants_count"`
+	StartedAt         time.Time `json:"started_at,mitempty"`
+	UpdatedAt         time.Time `json:"updated_at,omitempty"`
+	Type              string    `json:"tournament_type"`
+	Description       string    `json:"description"`
+	GameName          string    `json:"game_name"`
+	Progress          int       `json:"progress_meter"`
+	CompletedAt       time.Time `json:"completed_at"`
 
 	SubURL string `json:"sub_url"`
 
@@ -83,7 +83,7 @@ type Match struct {
 	PlayerTwoID    int    `json:"player2_id"`
 	PlayerOneScore int
 	PlayerTwoScore int
-	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
+	UpdatedAt      time.Time `json:"updated_at,omitempty"`
 
 	WinnerID int `json:"winner_id"`
 	LoserID  int `json:"loser_id"`
@@ -394,7 +394,6 @@ func (m *Match) ResolveParticipants(t *Tournament) {
 	m.PlayerTwo = t.GetParticipant(m.PlayerTwoID)
 
 	scoreOne, scoreTwo, err := separateScores(m.Scores)
-	fmt.Println(scoreOne, scoreTwo)
 
 	if err != nil {
 		m.PlayerOneScore = 0
@@ -414,6 +413,7 @@ func (m *Match) ResolveParticipants(t *Tournament) {
 		m.LoserScore = m.PlayerTwoScore
 		m.Winner = m.PlayerOne
 		m.Loser = m.PlayerTwo
+
 	} else if m.WinnerID == m.PlayerTwoID {
 		m.PlayerTwo.Win()
 		m.PlayerOne.Lose()
@@ -422,7 +422,6 @@ func (m *Match) ResolveParticipants(t *Tournament) {
 		m.Winner = m.PlayerTwo
 		m.Loser = m.PlayerOne
 	}
-
 }
 
 func (t *Tournament) resolveRelations() *Tournament {
@@ -460,7 +459,7 @@ func DiffMatches(matches1 []*Match, matches2 []*Match) []*Match {
 	return diff
 }
 
-func doGet(url string, v interface{}) {
+func doGet(url string, v *APIResponse) {
 	if debug {
 		log.Print("gets resource on url ", url)
 	}
