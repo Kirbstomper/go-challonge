@@ -88,10 +88,12 @@ type Match struct {
 	WinnerID int `json:"winner_id"`
 	LoserID  int `json:"loser_id"`
 
-	PlayerOne *Participant
-	PlayerTwo *Participant
-	Winner    *Participant
-	Loser     *Participant
+	PlayerOne   *Participant
+	PlayerTwo   *Participant
+	Winner      *Participant
+	Loser       *Participant
+	WinnerScore int
+	LoserScore  int
 
 	Scores string `json:"scores_csv"`
 }
@@ -406,14 +408,17 @@ func (m *Match) ResolveParticipants(t *Tournament) {
 	m.PlayerTwo.TotalScore += m.PlayerTwoScore
 
 	if m.WinnerID == m.PlayerOneID {
-		//Possible to match winner here
 		m.PlayerOne.Win()
 		m.PlayerTwo.Lose()
+		m.WinnerScore = m.PlayerOneScore
+		m.LoserScore = m.PlayerTwoScore
 		m.Winner = m.PlayerOne
 		m.Loser = m.PlayerTwo
 	} else if m.WinnerID == m.PlayerTwoID {
 		m.PlayerTwo.Win()
 		m.PlayerOne.Lose()
+		m.WinnerScore = m.PlayerTwoScore
+		m.LoserScore = m.PlayerOneScore
 		m.Winner = m.PlayerTwo
 		m.Loser = m.PlayerOne
 	}
