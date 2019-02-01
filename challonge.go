@@ -65,14 +65,15 @@ type Tournament struct {
 }
 
 type Participant struct {
-	ID         int    `json:"id"`
-	Name       string `json:"display_name"`
-	Misc       string `json:"misc"`
-	Seed       int    `json:"seed"`
-	Wins       int
-	Losses     int
-	TotalScore int
-	FinalRank  int `json:"final_rank"`
+	ID             int    `json:"id"`
+	Name           string `json:"display_name"`
+	Misc           string `json:"misc"`
+	Seed           int    `json:"seed"`
+	Wins           int
+	Losses         int
+	TotalScore     int
+	FinalRank      int   `json:"final_rank"`
+	GroupPlayerIds []int `json:"group_player_ids"`
 }
 
 type Match struct {
@@ -304,6 +305,9 @@ func (t *Tournament) GetParticipantByName(name string) *Participant {
 func (t *Tournament) GetParticipantByMisc(misc string) *Participant {
 	return t.getParticipantByCmp(func(p *Participant) bool { return p.Misc == misc })
 }
+func (t *Tournament) getParticipantByGroupPlayerId(id int) *Participant {
+	return t.getParticipantByCmp(func(p *Participant) bool { return p.GroupPlayerIds[0] == id })
+}
 
 func (t *Tournament) getParticipantByCmp(cmp cmp) *Participant {
 	for _, p := range t.Participants {
@@ -392,6 +396,14 @@ func separateScores(score string) (int, int, error) {
 func (m *Match) ResolveParticipants(t *Tournament) {
 	m.PlayerOne = t.GetParticipant(m.PlayerOneID)
 	m.PlayerTwo = t.GetParticipant(m.PlayerTwoID)
+
+	if m.PlayerOne == nil {
+		m.PlayerOne = t.getParticipantByGroupPlayerId(m.PlayerOneID)
+	}
+
+	if m.PlayerTwo == nil {
+		m.PlayerTwo = t.getParticipantByGroupPlayerId(m.PlayerTwoID)
+	}
 
 	scoreOne, scoreTwo, err := separateScores(m.Scores)
 
