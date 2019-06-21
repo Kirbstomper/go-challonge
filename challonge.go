@@ -184,6 +184,9 @@ func (r *TournamentRequest) Get() (*Tournament, error) {
 	if len(response.Errors) > 0 {
 		return nil, fmt.Errorf("unable to retrieve tournament: %q", response.Errors[0])
 	}
+	if response.Tournament.State != "complete" {
+		return nil, fmt.Errorf("tournament state is not 'completed'")
+	}
 	tournament := response.getTournament()
 	tournament.SubURL = r.ID
 	return tournament, nil
