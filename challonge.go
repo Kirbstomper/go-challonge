@@ -450,6 +450,9 @@ func (t *Tournament) resolveRelations() *Tournament {
 	matches := make([]*Match, 0)
 	for _, item := range t.MatchItems {
 		match := item.Match
+		if match.State == "pending" {
+			continue
+		}
 		match.ResolveParticipants(t)
 		matches = append(matches, match)
 	}
