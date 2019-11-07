@@ -180,13 +180,14 @@ func (t *Tournament) Update() *TournamentRequest {
 func (r *TournamentRequest) Get() (*Tournament, error) {
 	url := r.client.buildUrl("tournaments/"+r.ID, *params(r.Params))
 	response := &APIResponse{}
+	log.Print(url)
 	doGet(url, response)
 	if len(response.Errors) > 0 {
 		return nil, fmt.Errorf("unable to retrieve tournament: %q", response.Errors[0])
 	}
-	if response.Tournament.State != "complete" {
+	/*if response.Tournament.State != "complete" {
 		return nil, fmt.Errorf("tournament state is not 'completed'")
-	}
+	}*/
 	tournament := response.getTournament()
 	tournament.SubURL = r.ID
 	return tournament, nil
@@ -450,7 +451,7 @@ func (t *Tournament) resolveRelations() *Tournament {
 	matches := make([]*Match, 0)
 	for _, item := range t.MatchItems {
 		match := item.Match
-		if match.State != "complete" {
+		if match.State != "complete" && match.State != "open" {
 			continue
 		}
 		match.ResolveParticipants(t)
